@@ -12,4 +12,4 @@ jobs:
         run: |
           ffmpeg -re -i "https://bein-esp-xumo.amagi.tv/playlistR720P.m3u8" \
           -c:v copy -c:a copy \
-          -f flv "rtmp://rtmp-api.facebook.com:80/rtmp/FB-926132573193937-0-Ab7DoTtMgqjaBk0Z8zqKPk7H"
+          -f flv "rtmps://live-api-s.facebook.com:443/rtmp/FB-926151269858734-0-Ab7QW0SSDAFP1KN_JyNnBavp"
