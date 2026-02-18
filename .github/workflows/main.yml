@@ -1,15 +1,36 @@
-name: Wolf Live Stream
-on: workflow_dispatch
+name: 📺 Facebook Live Streamer (Text Overlay)
+on:
+  workflow_dispatch:
+    inputs:
+      m3u8_url:
+        description: 'رابط المصدر M3U8 Source'
+        required: true
+      fb_rtmp:
+        description: 'مفتاح البث Facebook RTMPS'
+        required: true
+      overlay_text:
+        description: 'النص اللي بغيتي يبان لتحت'
+        default: 'بث مباشر - Live Stream'
+        required: false
 
 jobs:
   stream:
     runs-on: ubuntu-latest
     steps:
-      - name: Install FFmpeg
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
-
-      - name: Start Streaming
+      - name: Install FFmpeg & Fonts
         run: |
-          ffmpeg -re -i "https://bein-esp-xumo.amagi.tv/playlistR720P.m3u8" \
-          -c:v copy -c:a copy \
-          -f flv "rtmps://live-api-s.facebook.com:443/rtmp/FB-926151269858734-0-Ab7QW0SSDAFP1KN_JyNnBavp"
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+
+      - name: 🚀 Streaming Loop (Center Bottom Text)
+        run: |
+          # سكريبت كيعاود الاتصال وكيحط النص لتحت في الوسط
+          while true; do
+            ffmpeg -re -i "${{ github.event.inputs.m3u8_url }}" \
+            -vf "drawtext=text='${{ github.event.inputs.overlay_text }}':x=(w-text_w)/2:y=h-th-50:fontsize=36:fontcolor=white:box=1:boxcolor=black@0.6:boxborderw=10" \
+            -c:v libx264 -preset veryfast -b:v 3000k -maxrate 3000k -bufsize 6000k \
+            -pix_fmt yuv420p -g 60 -c:a aac -ar 44100 -b:a 128k \
+            -f flv "${{ github.event.inputs.fb_rtmp }}" \
+            || echo "Reconnecting in 5 seconds..."
+            sleep 5
+          done
